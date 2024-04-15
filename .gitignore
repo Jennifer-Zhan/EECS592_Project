@@ -1,3 +1,5 @@
 .DS_Store
 **/.DS_Store
 env
+dataset/data
+dataset/__pycache__/
