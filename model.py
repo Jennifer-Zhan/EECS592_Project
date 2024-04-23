@@ -102,8 +102,6 @@ def main():
         #print(edited_color)
         # get color_shift_value
         color_diff = cv2.subtract(edited_color, original_color)
-        #print("diff")
-        #print(color_diff)
         color_shift_values[image_class].append(color_diff)
 
         #original_img = img_to_array(original_img)
