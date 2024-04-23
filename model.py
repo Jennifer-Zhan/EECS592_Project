@@ -5,7 +5,7 @@
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Dense, Reshape, Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.layers import Dense, Reshape, Conv2D, MaxPooling2D, Flatten, Input, Conv2DTranspose
 import numpy as np
 import torch
 from PIL import Image
@@ -27,6 +27,25 @@ def CNN_model():
       Reshape((224, 224))
   ])
   return model
+
+def fully_connected_model():
+    model = Sequential([
+       Dense(64, activation='relu', input_shape=(224, 224)),
+       Dense(32, activation='relu'),
+       Dense(4096, activation='linear'),
+       Reshape((224,224))
+    ])
+    return model
+
+def CNN_model_2():
+    input_tensor = Input(shape=(224, 224, 3))
+    conv2D1 = Conv2D(64, (3, 3), activation='relu', padding='same')(input_tensor)
+    conv2D2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2D1)
+
+    tranpose1 = Conv2DTranspose(64, (3, 3), strides=(1, 1), activation='relu', padding='same')(conv2D2)
+    output_tensor = Conv2D(3, (3, 3), activation='sigmoid', padding='same')(tranpose1)
+    model = Model(inputs=input_tensor, outputs=output_tensor)
+    return model
 
 def main():
     # data_loader = DataLoader(
@@ -64,7 +83,7 @@ def main():
         # get the highest prob in probs list
         highest_prob = torch.max(probs)
         highest_prob_index = 0
-        print(probs)
+        #print(probs)
         for i in range(8):
             if (probs[0][i].item()==highest_prob):
                 highest_prob_index = i
@@ -76,15 +95,15 @@ def main():
         #original_img = img_to_array(original_img)
         #edited_img = img_to_array(edited_img)
         original_color = cv2.cvtColor(original_img, cv2.COLOR_BGR2LAB)
-        print("original_color")
-        print(original_color)
+        #print("original_color")
+        #print(original_color)
         edited_color = cv2.cvtColor(edited_img, cv2.COLOR_BGR2LAB)
-        print("edited_color")
-        print(edited_color)
+        #print("edited_color")
+        #print(edited_color)
         # get color_shift_value
         color_diff = cv2.subtract(edited_color, original_color)
-        print("diff")
-        print(color_diff)
+        #print("diff")
+        #print(color_diff)
         color_shift_values[image_class].append(color_diff)
 
         #original_img = img_to_array(original_img)
@@ -104,22 +123,25 @@ def main():
     model_dict = {}
     for emotion in emotion_list:
         if(len(original_images_dict[emotion])!=0):
-            print("len")
-            print(len(original_images_dict[emotion]))
+            #print("len")
+            #print(len(original_images_dict[emotion]))
             X = np.array(original_images_dict[emotion])
+            print(X.shape)
             #print(X)
             y = np.array(color_shift_values[emotion])
+            print(y.shape)
             #print(y)
 
             # build model with fully connected layer
-            model_dict[emotion] = CNN_model()
+            model_dict[emotion] = CNN_model_2()
 
             #print(model_dict[emotion].summary())
             model_dict[emotion].compile(optimizer='adam', loss='mean_squared_error')
             model_dict[emotion].fit(X, y, epochs=10, batch_size=32)
         
     # get input from test dataset
-    test_img = load_img("test.png", target_size=(224, 224))
+    test_img = cv2.imread("test.png")
+    test_img = cv2.resize(test_img, (224, 224))
     # classify using CLIP
     logits_per_image = outputs_clip.logits_per_image
     probs = logits_per_image.softmax(dim=1)
@@ -138,13 +160,19 @@ def main():
         #test_img = preprocess_input(test_img)
         # extract original feature using pretrained VGG16 model
         # test_feature = VGG_model.predict(test_img, verbose=0)
-        test_X = np.array(test_img)
-        predicted_color_adjustment_value = model_dict[image_class].predict(test_X)
+        #test_X = np.array(test_img)
+        input_img = np.expand_dims(test_img, axis=0)
+        predicted_color_adjustment_value = model_dict[image_class].predict(input_img)
         print(predicted_color_adjustment_value)
         test_color = cv2.cvtColor(test_img, cv2.COLOR_BGR2LAB)
+        predicted_color_adjustment_value = np.reshape(predicted_color_adjustment_value, (1, 224, 224, 3))
         edited_color = test_color+predicted_color_adjustment_value
-        edited_color - np.clip(edited_color, 0, 255)
-        new_edited_img = cv2.cvtColor(edited_color, cv2.COLOR_BGR2LAB)
+        edited_color = np.clip(edited_color, 0, 255)
+        print("edited_color")
+        print(edited_color)
+        print("shape")
+        print(edited_color.shape)
+        new_edited_img = cv2.cvtColor(edited_color[0], cv2.COLOR_LAB2BGR)
         #predicted_feature = tensorflow.reshape(np.array(predicted_feature), shape=(1,1,4096))
         #decoder = Sequential([
             #Dense(256, activation='relu', input_shape=(1,4096)),
