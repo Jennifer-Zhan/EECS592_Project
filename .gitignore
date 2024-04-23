@@ -1,6 +1,11 @@
 .DS_Store
 **/.DS_Store
 env
+<<<<<<< HEAD
 dataset/__pycache__/
 *.png
 path-to-dataset-root/
+=======
+dataset/data
+dataset/__pycache__/
+>>>>>>> ae29bc1870659fc8adf6ed369f4b4eadd9c41c8d
