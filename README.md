@@ -4,6 +4,10 @@
 
 Our project is to explore the correlation between the emotions evoked in images and corresponding color adjustment applied, aiming to recommend an appropriate color adjustment option for image based on their emotional content.
 
+## Dataset
+
+MIT-Adobe FiveK Dataset: https://data.csail.mit.edu/graphics/fivek/
+
 ## Files
 
 `EECS592_model.ipynb`: This is an ipynb file used for training model on Google Colab. The file includes how we construct and train CNN model, how we test the model, and how we evaluate the model using SSIM and PSNR. The CNN model we trained is at the CNN Test section. The GAN test section is just a try.
