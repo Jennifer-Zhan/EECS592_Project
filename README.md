@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Our project is to explore the correlation between the emotions evoked in images and corresponding color adjustment applied, aiming to recommend an appropriate color adjustment option for image based on their emotional content.
+Our project is to explore the correlation between the emotions evoked in images and corresponding color adjustment applied, aiming to recommend an appropriate color adjustment option for image based on their emotional content. Our project contains two parts: images classification based on emotional content and CNN models for predicting color adjustment for photo editing.
 
 ## Dataset
 
