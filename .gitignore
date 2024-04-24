@@ -5,3 +5,4 @@ dataset/__pycache__/
 *.png
 path-to-dataset-root/
 dataset/data
+train

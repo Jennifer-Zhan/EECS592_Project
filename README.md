@@ -10,7 +10,7 @@ MIT-Adobe FiveK Dataset: https://data.csail.mit.edu/graphics/fivek/
 
 ## Files
 
-`EECS592_model.ipynb`: This is an ipynb file that includes all of our implementation. The file includes how we construct and train CNN models for each emotion type, how we test the model, and how we evaluate the model using SSIM and PSNR. The CNN models we trained are at the CNN Test section. The GAN test section is just a try.
+`EECS592_model.ipynb`: This is an ipynb file that includes all of our implementation. The file contains how we construct and train CNN models for each emotion type, how we test the model, and how we evaluate the model using SSIM and PSNR. The CNN models we trained are at the CNN Test section. The GAN test section is just a try.
 
 `model.py`: This is the file that includes CNN models implementation, but we already add the code in this file to `EECS592_model.ipynb` for larger dataset training.
 
