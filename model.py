@@ -94,10 +94,10 @@ def main():
         edited_img = cv2.resize(edited_img, (224, 224))
         #original_img = img_to_array(original_img)
         #edited_img = img_to_array(edited_img)
-        original_color = cv2.cvtColor(original_img, cv2.COLOR_BGR2LAB)
+        original_color = original_img
         #print("original_color")
         #print(original_color)
-        edited_color = cv2.cvtColor(edited_img, cv2.COLOR_BGR2LAB)
+        edited_color = edited_img
         #print("edited_color")
         #print(edited_color)
         # get color_shift_value
@@ -135,11 +135,11 @@ def main():
 
             #print(model_dict[emotion].summary())
             model_dict[emotion].compile(optimizer='adam', loss='mean_squared_error')
-            model_dict[emotion].fit(X, y, epochs=10, batch_size=32)
+            model_dict[emotion].fit(X, y, epochs=1, batch_size=32)
         
     # get input from test dataset
     test_img = cv2.imread("test.png")
-    test_img = cv2.resize(test_img, (224, 224))
+    img_resized = cv2.resize(test_img, (224, 224))
     # classify using CLIP
     logits_per_image = outputs_clip.logits_per_image
     probs = logits_per_image.softmax(dim=1)
@@ -159,18 +159,19 @@ def main():
         # extract original feature using pretrained VGG16 model
         # test_feature = VGG_model.predict(test_img, verbose=0)
         #test_X = np.array(test_img)
-        input_img = np.expand_dims(test_img, axis=0)
+        input_img = np.expand_dims(img_resized, axis=0)
         predicted_color_adjustment_value = model_dict[image_class].predict(input_img)
         print(predicted_color_adjustment_value)
-        test_color = cv2.cvtColor(test_img, cv2.COLOR_BGR2LAB)
+        #test_color = cv2.cvtColor(test_img, cv2.COLOR_BGR2LAB)
+        test_color = img_resized
         predicted_color_adjustment_value = np.reshape(predicted_color_adjustment_value, (1, 224, 224, 3))
-        edited_color = test_color+predicted_color_adjustment_value
-        edited_color = np.clip(edited_color, 0, 255)
+        edited_color = (test_color+predicted_color_adjustment_value[0])/255
+        #edited_color = np.clip(test_color, 0, 255)
         print("edited_color")
         print(edited_color)
         print("shape")
         print(edited_color.shape)
-        new_edited_img = cv2.cvtColor(edited_color[0], cv2.COLOR_LAB2BGR)
+        #new_edited_img = cv2.cvtColor(edited_color, cv2.COLOR_LAB2BGR)
         #predicted_feature = tensorflow.reshape(np.array(predicted_feature), shape=(1,1,4096))
         #decoder = Sequential([
             #Dense(256, activation='relu', input_shape=(1,4096)),
@@ -179,7 +180,7 @@ def main():
             #Reshape((224, 224))
         #])
         #decode_image = decoder.predict(predicted_feature)
-        plt.imshow(new_edited_img)
+        plt.imshow(edited_color)
         plt.show()
     else:
         print("need larger dataset")
